@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Decision Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* Remove number input arrows */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-black via-zinc-900 to-black text-white min-h-screen flex items-center justify-center"
+  >
+    <div class="w-full max-w-xl p-8">
+      <!-- Card -->
+      <div
+        class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl"
+      >
+        <!-- Header -->
+        <h1 class="text-3xl font-semibold mb-1">🧠 Decision Assistant</h1>
+        <p class="text-sm text-zinc-400 mb-8">Make smarter daily choices</p>
+
+        <!-- Inputs -->
+        <div class="space-y-6">
+          <!-- Spending -->
+          <div>
+            <label class="text-sm text-zinc-400">Daily Spending</label>
+
+            <div
+              class="flex items-center mt-2 bg-black/40 border border-white/10 rounded-lg overflow-hidden"
+            >
+              <button
+                onclick="changeValue('spending', -100)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                −
+              </button>
+
+              <input
+                id="spending"
+                type="number"
+                placeholder="LKR 0"
+                class="w-full text-center bg-transparent focus:outline-none text-lg"
+              />
+
+              <button
+                onclick="changeValue('spending', 100)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Sleep -->
+          <div>
+            <label class="text-sm text-zinc-400">Sleep Hours</label>
+
+            <div
+              class="flex items-center mt-2 bg-black/40 border border-white/10 rounded-lg overflow-hidden"
+            >
+              <button
+                onclick="changeValue('sleep', -1)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                −
+              </button>
+
+              <input
+                id="sleep"
+                type="number"
+                placeholder="e.g. 7"
+                class="w-full text-center bg-transparent focus:outline-none text-lg"
+              />
+
+              <button
+                onclick="changeValue('sleep', 1)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Orders -->
+          <div>
+            <label class="text-sm text-zinc-400">Food Orders (This Week)</label>
+
+            <div
+              class="flex items-center mt-2 bg-black/40 border border-white/10 rounded-lg overflow-hidden"
+            >
+              <button
+                onclick="changeValue('orders', -1)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                −
+              </button>
+
+              <input
+                id="orders"
+                type="number"
+                placeholder="e.g. 2"
+                class="w-full text-center bg-transparent focus:outline-none text-lg"
+              />
+
+              <button
+                onclick="changeValue('orders', 1)"
+                class="px-5 py-4 text-zinc-400 hover:bg-white/10 transition"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analyze Button -->
+        <button
+          onclick="analyze()"
+          class="w-full mt-8 bg-blue-600 hover:bg-blue-500 transition p-4 rounded-lg font-medium shadow-md text-lg"
+        >
+          Analyze Decisions
+        </button>
+
+        <!-- Results -->
+        <div id="result" class="mt-8 space-y-4 text-sm"></div>
+      </div>
+    </div>
+
+    <script>
+      function changeValue(id, amount) {
+        const input = document.getElementById(id);
+        let value = parseFloat(input.value) || 0;
+
+        value += amount;
+
+        if (value < 0) value = 0;
+
+        input.value = value;
+      }
+
+      function analyze() {
+        const spending =
+          parseFloat(document.getElementById("spending").value) || 0;
+        const sleep = parseFloat(document.getElementById("sleep").value) || 0;
+        const orders = parseInt(document.getElementById("orders").value) || 0;
+
+        localStorage.setItem("spending", spending);
+        localStorage.setItem("sleep", sleep);
+        localStorage.setItem("orders", orders);
+
+        const messages = [];
+
+        if (spending > 5000) {
+          messages.push({
+            text: "You’ve spent a lot today. Slow down.",
+            type: "warn",
+          });
+        }
+
+        if (sleep < 6) {
+          messages.push({
+            text: "Low sleep detected. Prioritize rest tonight.",
+            type: "warn",
+          });
+        }
+
+        if (orders > 3) {
+          messages.push({
+            text: "Too many food orders this week. Try cooking.",
+            type: "warn",
+          });
+        }
+
+        if (messages.length === 0) {
+          messages.push({
+            text: "You’re doing great. Keep it up.",
+            type: "good",
+          });
+        }
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+
+        messages.forEach((msg) => {
+          const div = document.createElement("div");
+
+          div.className = `
+      p-4 rounded-lg border 
+      ${msg.type === "warn" ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-300" : ""}
+      ${msg.type === "good" ? "bg-green-500/10 border-green-500/20 text-green-300" : ""}
+    `;
+
+          div.textContent = msg.text;
+          resultDiv.appendChild(div);
+        });
+      }
+
+      window.onload = () => {
+        document.getElementById("spending").value =
+          localStorage.getItem("spending") || "";
+        document.getElementById("sleep").value =
+          localStorage.getItem("sleep") || "";
+        document.getElementById("orders").value =
+          localStorage.getItem("orders") || "";
+      };
+    </script>
+  </body>
+</html>
