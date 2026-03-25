@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
   <head>
-    <link rel="icon" href="IMAGES/Bold black and white logo.png" />
     <title>Your Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -13,6 +12,56 @@
         -moz-appearance: textfield;
       }
 
+      /* LOGO POP */
+      @keyframes logoPop {
+        0% {
+          transform: scale(0.6);
+          opacity: 0;
+        }
+        60% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* FLOAT */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+        50% {
+          transform: translateY(-6px) scale(1.05);
+        }
+      }
+
+      /* GLOW */
+      @keyframes glow {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.3);
+        }
+      }
+
+      .animate-logoPop {
+        animation: logoPop 0.8s ease-out;
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+      .animate-glow {
+        animation: glow 2s infinite ease-in-out;
+      }
+
+      /* DOTS */
       @keyframes bounce {
         0%,
         80%,
@@ -48,44 +97,40 @@
   </head>
 
   <body class="bg-black flex items-center justify-center min-h-screen">
+    <!-- PHONE FRAME -->
     <div
       class="w-[375px] h-[812px] bg-zinc-950 rounded-[40px] border border-white/10 flex flex-col overflow-hidden text-white"
     >
-      <!-- Splash -->
-      <div
-        id="splash"
-        class="flex flex-col items-center justify-center h-full space-y-6"
-      >
-        <h1 class="text-3xl font-semibold">Your Assistant</h1>
+      <!-- SPLASH -->
+      <div id="splash" class="relative h-full flex items-center justify-center">
+        <!-- CENTERED LOGO -->
+        <div class="relative flex flex-col items-center justify-center">
+          <!-- Glow -->
+          <div
+            class="absolute w-64 h-64 bg-blue-600/30 blur-2xl rounded-full animate-glow opacity-70"
+          ></div>
 
-        <!-- ONLY dots -->
-        <div class="flex space-x-2">
+          <!-- Logo -->
+          <img
+            src="IMAGES/Bold_black_and_white_logo-removebg-preview.png"
+            class="w-80 h-66 object-contain z-10 relative drop-shadow-lg animate-logoPop animate-float"
+          />
+        </div>
+
+        <!-- DOTS -->
+        <div id="dots" class="absolute bottom-16 flex space-x-2 opacity-0">
           <div class="dot"></div>
           <div class="dot"></div>
           <div class="dot"></div>
         </div>
       </div>
 
-      <!-- Thinking -->
-      <div
-        id="thinking"
-        class="hidden flex flex-col items-center justify-center h-full space-y-4"
-      >
-        <p id="thinkingText" class="text-zinc-400 text-sm"></p>
-        <div class="flex space-x-2">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-
-      <!-- Login -->
+      <!-- LOGIN -->
       <div
         id="login"
         class="hidden flex flex-col justify-center items-center h-full px-6"
       >
         <div class="w-full space-y-5">
-          <h1 class="text-2xl text-center">Your Assistant</h1>
           <h2 class="text-sm text-zinc-400 text-center">Welcome back</h2>
 
           <input
@@ -106,7 +151,20 @@
         </div>
       </div>
 
-      <!-- Home -->
+      <!-- THINKING -->
+      <div
+        id="thinking"
+        class="hidden flex flex-col items-center justify-center h-full space-y-4"
+      >
+        <p id="thinkingText" class="text-zinc-400 text-sm"></p>
+        <div class="flex space-x-2">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+
+      <!-- HOME -->
       <div id="home" class="hidden flex-1 flex flex-col">
         <div class="p-4 border-b border-white/10">
           <h1 class="text-lg">Welcome back</h1>
@@ -182,19 +240,21 @@
             </div>
           </div>
 
+          <!-- Analyze -->
           <button
             onclick="analyze()"
-            class="w-full bg-blue-600 py-4 rounded-xl text-lg font-medium"
+            class="w-full bg-blue-600 py-4 rounded-xl text-lg"
           >
             Analyze
           </button>
 
+          <!-- Result -->
           <div id="result"></div>
         </div>
       </div>
     </div>
+
     <script>
-      // Screen switching
       function showScreen(screen) {
         ["splash", "login", "home", "thinking"].forEach((id) => {
           document.getElementById(id).classList.add("hidden");
@@ -202,12 +262,16 @@
         document.getElementById(screen).classList.remove("hidden");
       }
 
-      /* Splash → Login (with dots visible) */
+      /* Splash timing */
+      setTimeout(() => {
+        document.getElementById("dots").classList.remove("opacity-0");
+      }, 1200);
+
       setTimeout(() => {
         showScreen("login");
-      }, 3000);
+      }, 3500);
 
-      /* LOGIN FLOW */
+      /* Login flow */
       function login() {
         const text = document.getElementById("thinkingText");
 
@@ -223,22 +287,19 @@
         }, 3000);
       }
 
-      /* INPUT CONTROL */
+      /* Controls */
       function changeValue(id, amount) {
         const input = document.getElementById(id);
         let value = parseFloat(input.value) || 0;
-
         value += amount;
         if (value < 0) value = 0;
-
         input.value = value;
       }
 
-      /* ANALYZE (FIXED PROPERLY) */
+      /* Analyze */
       function analyze() {
         const resultDiv = document.getElementById("result");
 
-        // Thinking state with dots
         resultDiv.innerHTML = `
     <div class="p-4 rounded-xl bg-white/5 text-center space-y-3">
       <p class="text-zinc-400">Thinking...</p>
@@ -258,44 +319,26 @@
 
           const messages = [];
 
-          if (spending > 5000) {
-            messages.push(
-              "⚠️ You've been spending quite a bit today. You might want to slow down.",
-            );
-          } else {
-            messages.push("💰 Your spending looks under control.");
-          }
+          if (spending > 5000) messages.push("⚠️ You’re spending quite a lot.");
+          else messages.push("💰 Your spending looks controlled.");
 
-          if (sleep < 6) {
-            messages.push(
-              "😴 Your sleep is low. That could affect your decisions.",
-            );
-          } else {
-            messages.push("🌙 Your sleep is in a healthy range.");
-          }
+          if (sleep < 6) messages.push("😴 Your sleep is low.");
+          else messages.push("🌙 Your sleep is good.");
 
-          if (orders > 3) {
-            messages.push(
-              "🍔 You’ve been ordering food frequently. Cooking could help balance things.",
-            );
-          } else {
-            messages.push("🥗 Your food habits look balanced.");
-          }
+          if (orders > 3) messages.push("🍔 Too many food orders.");
+          else messages.push("🥗 Your food habits look balanced.");
 
-          // ✅ ONE CLEAN BOX
           resultDiv.innerHTML = `
       <div class="bg-white/5 rounded-xl p-4 space-y-3">
-
         ${messages
           .map(
-            (m, index) => `
-          <div class="pb-2 ${index !== messages.length - 1 ? "border-b border-white/10" : ""}">
+            (m, i) => `
+          <div class="${i !== messages.length - 1 ? "border-b border-white/10 pb-2" : ""}">
             ${m}
           </div>
         `,
           )
           .join("")}
-
       </div>
     `;
         }, 4000);
